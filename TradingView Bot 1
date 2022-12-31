@@ -8,7 +8,7 @@ symbol = "LUNC/BUSD"
 timeframe = "1h"
 
 // Define the bollinger function
-bollinger(series, length, stdDev) =>
+bollinger(series, length, stdDev) => {
     // Calculate the moving average
     ma = sma(series, length)
 
@@ -21,9 +21,10 @@ bollinger(series, length, stdDev) =>
 
     // Return the Bollinger Bands as an object
     {upper: upper, middle: ma, lower: lower}
+}
 
 // Define the fibonacci function
-fibonacci(low, high) =>
+fibonacci(low, high) => {
     // Calculate the Fibonacci retracement levels
     ret_0 = (high + low) / 2
     ret_23_6 = low + (high - low) * 23.6 / 100
@@ -35,6 +36,7 @@ fibonacci(low, high) =>
 
     // Return the Fibonacci retracement levels as an object
     {ret_0: ret_0, ret_23_6: ret_23_6, ret_38_2: ret_38_2, ret_50_0: ret_50_0, ret_61_8: ret_61_8, ret_78_6: ret_78_6, ret_100_0: ret_100_0}
+}
 
 // Load the Bollinger Bands and Fibonacci retracement indicators
 bollingerBands = bollinger(close, 20)
