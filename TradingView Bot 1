@@ -1,64 +1,67 @@
-// Crypto trading strategy using Bollinger Bands and Fibonacci retracements
+//@version=4
+// Bollinger Bands and Fibonacci Retracements Crypto Trading Strategy
+// Using LUNC and BUSD
 
-// Specify the version of the Pine script language
-//@version=2
+// Bollinger Bands settings
+bb_length = 20
+bb_std = 2
 
-// Define the symbol and timeframe for the strategy
-symbol = "LUNC/BUSD"
-timeframe = "1h"
+// Fibonacci retracement levels
+fib_levels = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1]
 
-// Define the bollinger function
-bollinger(series, length, stdDev) => {
-    // Calculate the moving average
-    ma = sma(series, length)
+// Define the main strategy function
+strategy("Bollinger Bands and Fibonacci Retracements Strategy", shorttitle="BB+Fib Strategy", overlay=true, initial_capital=10000)
 
-    // Calculate the standard deviation
-    std = stdev(series, length)
+// Get the Bollinger Bands for LUNC
+bb_lunc = bollinger(syminfo.ticker, length=bb_length, stddev=bb_std)
 
-    // Calculate the upper and lower bands
-    upper = ma + stdDev * std
-    lower = ma - stdDev * std
+// Get the Fibonacci retracement levels for LUNC
+fib_lunc = fibonacci(syminfo.ticker, levels=fib_levels)
 
-    // Return the Bollinger Bands as an object
-    {upper: upper, middle: ma, lower: lower}
-}
+// Get the Bollinger Bands for BUSD
+bb_busd = bollinger(syminfo.ticker, length=bb_length, stddev=bb_std, src=close, symbol="BUSD")
 
-// Define the fibonacci function
-fibonacci(low, high) => {
-    // Calculate the Fibonacci retracement levels
-    ret_0 = (high + low) / 2
-    ret_23_6 = low + (high - low) * 23.6 / 100
-    ret_38_2 = low + (high - low) * 38.2 / 100
-    ret_50_0 = low + (high - low) * 50.0 / 100
-    ret_61_8 = low + (high - low) * 61.8 / 100
-    ret_78_6 = low + (high - low) * 78.6 / 100
-    ret_100_0 = high
+// Get the Fibonacci retracement levels for BUSD
+fib_busd = fibonacci(syminfo.ticker, levels=fib_levels, src=close, symbol="BUSD")
 
-    // Return the Fibonacci retracement levels as an object
-    {ret_0: ret_0, ret_23_6: ret_23_6, ret_38_2: ret_38_2, ret_50_0: ret_50_0, ret_61_8: ret_61_8, ret_78_6: ret_78_6, ret_100_0: ret_100_0}
-}
+// Plot the Bollinger Bands for LUNC
+plot(bb_lunc.middle, title="BB Middle Band (LUNC)", color=blue)
+plot(bb_lunc.upper, title="BB Upper Band (LUNC)", color=red)
+plot(bb_lunc.lower, title="BB Lower Band (LUNC)", color=green)
 
-// Load the Bollinger Bands and Fibonacci retracement indicators
-bollingerBands = bollinger(close, 20)
-fibonacciRetracements = fibonacci(low, high)
+// Plot the Fibonacci retracement levels for LUNC
+plot(fib_lunc.fib_0, title="Fib 0% (LUNC)", color=purple, linewidth=2, style=circles)
+plot(fib_lunc.fib_236, title="Fib 23.6% (LUNC)", color=purple, linewidth=2, style=circles)
+plot(fib_lunc.fib_382, title="Fib 38.2% (LUNC)", color=purple, linewidth=2, style=circles)
+plot(fib_lunc.fib_5, title="Fib 50% (LUNC)", color=purple, linewidth=2, style=circles)
+plot(fib_lunc.fib_618, title="Fib 61.8% (LUNC)", color=purple, linewidth=2, style=circles)
+plot(fib_lunc.fib_786, title="Fib 78.6% (LUNC)", color=purple, linewidth=2, style=circles)
+plot(fib_lunc.fib_1, title="Fib 100% (LUNC)", color=purple, linewidth=2, style=circles)
 
-// Buy signal:
-// - Close is above the upper Bollinger Band
-// - Close is above the 38.2% Fibonacci retracement level
-// - RSI(14) is above 50
-if close > bollingerBands.upper and close > fibonacciRetracements.ret_38_2 and rsi(close, 14) > 50
-    strategy.entry("Long", strategy.long)
+// Plot the Bollinger Bands for BUSD
+plot(bb_busd.middle, title="BB Middle Band (BUSD)", color=blue, linewidth=2, linestyle=dashed)
+plot(bb_busd.upper, title="BB Upper Band (BUSD)", color=red, linewidth=2, linestyle=dashed)
+plot(bb_busd.lower, title="BB Lower Band (BUSD)", color=green, linewidth=2, linestyle=dashed)
 
-// Sell signal:
-// - Close is below the lower Bollinger Band
-// - Close is below the 61.8% Fibonacci retracement level
-// - RSI(14) is below 50
-if close < bollingerBands.lower and close < fibonacciRetracements.ret_61_8 and rsi(close, 14) < 50
-    strategy.entry("Short", strategy.short)
+// Plot the Fibonacci retracement levels for BUSD
+plot(fib_busd.fib_0, title="Fib 0% (BUSD)", color=purple, linewidth=2, style=circles, linestyle=dashed)
+plot(fib_busd.fib_236, title="Fib 23.6% (BUSD)", color=purple, linewidth=2, style=circles, linestyle=dashed)
+plot(fib_busd.fib_382, title="Fib 38.2% (BUSD)", color=purple, linewidth=2, style=circles, linestyle=dashed)
+plot(fib_busd.fib_5, title="Fib 50% (BUSD)", color=purple, linewidth=2, style=circles, linestyle=dashed)
+plot(fib_busd.fib_618, title="Fib 61.8% (BUSD)", color=purple, linewidth=2, style=circles, linestyle=dashed)
+plot(fib_busd.fib_786, title="Fib 78.6% (BUSD)", color=purple, linewidth=2, style=circles, linestyle=dashed)
+plot(fib_busd.fib_1, title="Fib 100% (BUSD)", color=purple, linewidth=2, style=circles, linestyle=dashed)
 
-// Plot the Bollinger Bands and Fibonacci retracement levels on the chart
-plot(bollingerBands.upper, color=orange, linewidth=1)
-plot(bollingerBands.middle, color=orange, linewidth=1)
-plot(bollingerBands.lower, color=orange, linewidth=1)
-plot(fibonacciRetracements.ret_38_2, color=blue, linewidth=1)
-plot(fibonacciRetracements.ret_61_8, color=blue, linewidth=1)
+// Define the buy and sell conditions for LUNC
+buy_lunc = crossover(close, bb_lunc.lower)
+sell_lunc = crossunder(close, bb_lunc.upper)
+
+// Define the buy and sell conditions for BUSD
+buy_busd = crossover(close, bb_busd.lower)
+sell_busd = crossunder(close, bb_busd.upper)
+
+// Use the strategy function to define the buy and sell orders
+strategy.entry("Long LUNC", strategy.long, when=buy_lunc)
+strategy.exit("Close Long LUNC", strategy.long, when=sell_lunc)
+strategy.entry("Long BUSD", strategy.long, when=buy_busd)
+strategy.exit("Close Long BUSD", strategy.long, when=sell_busd)
