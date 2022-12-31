@@ -1,0 +1,62 @@
+// Crypto trading strategy using Bollinger Bands and Fibonacci retracements
+
+// Specify the version of the Pine script language
+//@version=2
+
+// Define the symbol and timeframe for the strategy
+symbol = "LUNC/BUSD"
+timeframe = "1h"
+
+// Define the bollinger function
+bollinger(series, length, stdDev) =>
+    // Calculate the moving average
+    ma = sma(series, length)
+
+    // Calculate the standard deviation
+    std = stdev(series, length)
+
+    // Calculate the upper and lower bands
+    upper = ma + stdDev * std
+    lower = ma - stdDev * std
+
+    // Return the Bollinger Bands as an object
+    {upper: upper, middle: ma, lower: lower}
+
+// Define the fibonacci function
+fibonacci(low, high) =>
+    // Calculate the Fibonacci retracement levels
+    ret_0 = (high + low) / 2
+    ret_23_6 = low + (high - low) * 23.6 / 100
+    ret_38_2 = low + (high - low) * 38.2 / 100
+    ret_50_0 = low + (high - low) * 50.0 / 100
+    ret_61_8 = low + (high - low) * 61.8 / 100
+    ret_78_6 = low + (high - low) * 78.6 / 100
+    ret_100_0 = high
+
+    // Return the Fibonacci retracement levels as an object
+    {ret_0: ret_0, ret_23_6: ret_23_6, ret_38_2: ret_38_2, ret_50_0: ret_50_0, ret_61_8: ret_61_8, ret_78_6: ret_78_6, ret_100_0: ret_100_0}
+
+// Load the Bollinger Bands and Fibonacci retracement indicators
+bollingerBands = bollinger(close, 20)
+fibonacciRetracements = fibonacci(low, high)
+
+// Buy signal:
+// - Close is above the upper Bollinger Band
+// - Close is above the 38.2% Fibonacci retracement level
+// - RSI(14) is above 50
+if close > bollingerBands.upper and close > fibonacciRetracements.ret_38_2 and rsi(close, 14) > 50
+    strategy.entry("Long", strategy.long)
+
+// Sell signal:
+// - Close is below the lower Bollinger Band
+// - Close is below the 61.8% Fibonacci retracement level
+// - RSI(14) is below 50
+if close < bollingerBands.lower and close < fibonacciRetracements.ret_61_8 and rsi(close, 14) < 50
+    strategy.entry("Short", strategy.short)
+
+// Plot the Bollinger Bands and Fibonacci retracement levels on the chart
+plot(bollingerBands.upper, color=orange, linewidth=1)
+plot(bollingerBands.middle, color=orange, linewidth=1)
+plot(bollingerBands.lower, color=orange, linewidth=1)
+plot(fibonacciRetracements.ret_38_2, color=blue, linewidth=1)
+plot(fibonacciRetracements.ret_61_8, color=blue, linewidth=1)
